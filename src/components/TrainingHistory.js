@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import moment from 'moment';
 import shortid from 'shortid';
 import TrainingAddForm from './TrainingAddForm';
-import TrainingsAddChange from './TrainingsAddChange';
+// import TrainingsAddChange from './TrainingsAddChange';
 import TrainingsList from './TrainingsList';
 import TrainingModel from '../model/TrainingModel';
 
@@ -13,7 +13,23 @@ export default function TrainingHistory() {
     date: '',
     distance: '',
   });
+
   const sortTrainings = trainings.sort((a, b) => moment(b.date, 'DD.MM.YY') - moment(a.date, 'DD.MM.YY'));
+
+  const trainingsAddChange = (trainings, training) => {
+    const changeTrainings = trainings;
+    const findItem = changeTrainings.findIndex((item) => item.date === training.date);
+
+    if (findItem === -1) {
+      changeTrainings.push(training);
+      return changeTrainings;
+    }
+  
+    changeTrainings[findItem].distance += training.distance;
+    changeTrainings[findItem].kilometr = changeTrainings[findItem].kilometr || training.kilometr;
+  
+    return changeTrainings;
+  }
 
   const handleFormChange = (objValue) => {
     const { name, value } = objValue;
@@ -26,7 +42,7 @@ export default function TrainingHistory() {
     if (!form.id) {
       const training = new TrainingModel(shortid.generate(), date, distance, kilometr);
 
-      setTrainings([...TrainingsAddChange(trainings, training)]);
+      setTrainings([...trainingsAddChange(trainings, training)]);
     } else {
       setTrainings((prevTrainings) => prevTrainings.map((itemTraining) => {
         if (itemTraining.id === form.id) {
